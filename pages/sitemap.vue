@@ -1,74 +1,95 @@
 <template>
-  <div class="page" :class="{ mobile: mobileLayout }">
+  <div class="sitemap-page" :class="{ mobile: isMobile }">
     <div class="sitemap">
-      <div class="articles">
-        <h3 class="title">articles</h3>
-        <p v-if="!articles.length">暂无文章</p>
-        <ul class="article-list" v-else>
-          <li class="item" v-for="(article, index) in articles">
+      <div class="module articles">
+        <h4 class="title" v-text="$i18n.text.article.name"></h4>
+        <p v-if="!articles.length" v-text="$i18n.text.article.empty"></p>
+        <ul v-else class="article-list">
+          <li v-for="(article, index) in articles" :key="index" class="item">
             <p class="item-content">
-              <router-link class="link"
-                           :to="`/article/${article.id}`"
-                           :title="article.title">《{{ article.title }}》</router-link>
-              <span class="sign">&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;</span>
-              <a class="toggle" href="" @click.prevent="toggleArticleDescriptionOpen(index)">
-                <span>{{ article.open ? '收起' : '展开' }}描述</span>
+              <a class="link" :href="`/article/${article.id}`" target="_blank" :title="article.title">
+                <span class="sign">「</span>
+                <span class="title">{{ article.title }}</span>
+                <span class="sign">」</span>
               </a>
+              <span class="sign">&nbsp;&nbsp;-&nbsp;&nbsp;</span>
+              <small>
+                <a
+                  href
+                  class="toggle-link"
+                  @click.prevent="$store.commit('sitemap/updateArticleOpenState', index)"
+                  v-text="$i18n.text.action[article.open ? 'close' : 'open']"
+                ></a>
+              </small>
             </p>
             <transition name="module">
-              <p v-show="article.open" class="item-description">{{ article.description }}</p>
+              <p v-show="article.open" class="item-description">
+                <span v-html="article.description || $i18n.text.article.empty"></span>
+              </p>
             </transition>
           </li>
         </ul>
       </div>
-      <br>
-      <div class="categories">
-        <h3 class="title">categories</h3>
-        <p v-if="!categories.length">暂无分类</p>
-        <ul class="categories-list" v-else>
-          <li class="item" v-for="(category, index) in categories">
-            <p>
-              <router-link class="name"
-                           :to="`/category/${category.slug}`"
-                           :title="category.name">{{ category.name }}</router-link>
-              <span>&nbsp;</span>
+      <div class="module categories">
+        <h4 class="title" v-text="$i18n.text.category.name"></h4>
+        <p v-if="!categories.length" v-text="$i18n.text.article.empty"></p>
+        <ul v-else class="categories-list">
+          <li v-for="(category, index) in categories" :key="index" class="item">
+            <p class="item-content">
+              <a
+                class="name"
+                target="_blank"
+                :href="`/category/${category.slug}`"
+                :title="category.name"
+              >{{ isEnLang ? category.slug : category.name }}</a>
               <span>（{{ category.count || 0 }}）</span>
-              <span>&nbsp;-&nbsp;&nbsp;</span>
+              <span>&nbsp;-&nbsp;</span>
               <span>{{ category.description }}</span>
             </p>
           </li>
         </ul>
       </div>
-      <br>
-      <div class="tags">
-        <h3 class="title">tags</h3>
-        <p v-if="!tags.length">暂无标签</p>
-        <ul class="tag-list" v-else>
-          <li class="item" v-for="tag in tags">
-            <router-link :to="`/tag/${tag.slug}`" :title="tag.description">{{ tag.name }}</router-link>
-            <span>&nbsp;</span>
+      <div class="module tags">
+        <h4 class="title" v-text="$i18n.text.tag.name"></h4>
+        <p v-if="!tags.length" v-text="$i18n.text.article.empty"></p>
+        <ul v-else class="tag-list">
+          <li v-for="(tag, index) in tags" :key="index" class="item">
+            <a
+              target="_blank"
+              :href="`/tag/${tag.slug}`"
+              :title="tag.description"
+            >{{ isEnLang ? tag.slug : tag.name }}</a>
             <span>（{{ tag.count || 0 }}）</span>
           </li>
         </ul>
       </div>
-      <br>
-      <div class="pages">
-        <h3 class="title">pages</h3>
+      <div class="module pages">
+        <h4 class="title" v-text="$i18n.text.page.name"></h4>
         <ul class="page-list">
           <li class="item">
-            <router-link to="/">Home</router-link>
+            <a href="/" target="_blank" v-text="$i18n.nav.home" />
           </li>
           <li class="item">
-            <router-link to="/project">Project</router-link>
+            <a href="/about" target="_blank" v-text="$i18n.nav.about" />
           </li>
           <li class="item">
-            <router-link to="/about">About</router-link>
+            <a href="/vlog" target="_blank" v-text="$i18n.nav.vlog" />
           </li>
           <li class="item">
-            <router-link to="/guestbook">Guestbook</router-link>
+            <a
+              target="_blank"
+              rel="external nofollow noopener"
+              :href="appConfig.links.project"
+            >{{ $i18n.nav.project }}</a>
           </li>
           <li class="item">
-            <a href="/sitemap.xml" target="_blank">XML SiteMap</a>
+            <a href="/service" target="_blank" v-text="$i18n.nav.service" />
+          </li>
+          <li class="item">
+            <a href="/guestbook" target="_blank" v-text="$i18n.nav.guestbook" />
+          </li>
+          <li class="item">
+            <a href="/sitemap.xml" target="_blank" v-text="$i18n.nav.map" />
           </li>
         </ul>
       </div>
@@ -77,46 +98,41 @@
 </template>
 
 <script>
+  import { mapState } from 'vuex'
+  import appConfig from '~/config/app.config'
+
   export default {
-    name: 'sitemap',
-    head: {
-      title: 'Sitemap'
+    name: 'Sitemap',
+    head() {
+      return {
+        title: `${this.isEnLang ? '' : this.$i18n.nav.map + ' | '}Sitemap`
+      }
     },
-    fetch ({ store }) {
-      return store.dispatch('loadSitemapArticles', { per_page: 500 })
+    fetch({ store }) {
+      return store.dispatch('sitemap/fetchArticles', { per_page: 666 })
     },
     computed: {
-      articles() {
-        return this.$store.state.sitemap.articles.data.data
+      ...mapState({
+        tags: state => state.tag.data,
+        categories: state => state.category.data,
+        articles: state => state.sitemap.articles.data,
+        isMobile: state => state.global.isMobile,
+      }),
+      isEnLang() {
+        return this.$store.getters['global/isEnLang']
       },
-      categories() {
-        return this.$store.state.category.data.data
-      },
-      tags() {
-        return this.$store.state.tag.data.data
-      },
-      mobileLayout() {
-        return this.$store.state.option.mobileLayout
-      }
-    },
-    methods: {
-      // 设置文章简介展开折叠
-      toggleArticleDescriptionOpen(index) {
-        const articles = this.articles
-        this.$set(articles[index], 'open', !articles[index].open)
-      }
+      appConfig: () => appConfig
     }
   }
 </script>
 
 <style lang="scss" scoped>
-  @import '~assets/sass/mixins';
-  @import '~assets/sass/variables';
-  .page {
-    padding: 2em 3em;
+  .sitemap-page {
+    padding: $gap 3rem;
     background-color: $module-bg;
     overflow: hidden;
-    
+    $border-guide: 1px solid;
+
     &.mobile {
       padding: 1.666rem;
 
@@ -124,23 +140,38 @@
         padding-left: 1.666rem;
 
         &.article-list {
-
           > .item {
-
             > .item-content {
-
               > .link {
+                display: flex;
+                border: none;
+
+                > .sign,
+                > .title {
+                  display: inline-block;
+                }
+
+                > .title {
+                  margin: 0;
+                  max-width: 88%;
+                  border-bottom: $border-guide;
+                  @include text-overflow();
+                }
+              }
+
+              .toggle-link {
+                padding-left: 1em;
                 display: block;
-                margin-bottom: 1rem;
+                margin: 1em 0;
               }
 
               > .sign {
                 display: none;
               }
+            }
 
-              > .toggle {
-
-              }
+            > .item-description {
+              margin-top: -$gap;
             }
           }
         }
@@ -148,31 +179,47 @@
     }
 
     .sitemap {
+      text-transform: capitalize;
 
       a {
-        text-decoration: underline;
+        border-bottom: $border-guide;
+
+        &.toggle-link {
+          border: none;
+        }
       }
 
-      .tags,
-      .pages,
-      .articles,
-      .categories {
+      .module {
+        margin-bottom: $lg-gap * 2;
+        font-size: 1em;
 
         .title {
-          margin: 0em 0 1em;
           font-weight: bold;
           text-transform: capitalize;
         }
       }
 
       .articles {
-
         .article-list {
+          list-style: square;
 
           > .item {
+            > .item-content {
+              margin-bottom: 1.2em;
+
+              > .link {
+                border: none;
+
+                > .title {
+                  font-weight: normal;
+                  border-bottom: $border-guide;
+                }
+              }
+            }
 
             > .item-description {
-              line-height: 2.16rem;
+              line-height: 2em;
+              padding-left: 1em;
             }
           }
         }
@@ -180,29 +227,29 @@
 
       .tags,
       .pages {
+        margin-bottom: $gap;
 
         .tag-list,
         .page-list {
           overflow: hidden;
+          margin: 0;
 
           .item {
             float: left;
-            display: inline-block;
-            margin-right: 1.5em;
-            margin-bottom: 1em;
-            font-size: 1.1em;
+            display: block;
+            margin-right: $lg-gap;
+            margin-bottom: $lg-gap;
           }
         }
       }
 
       .categories {
-
         .categories-list {
+          list-style: square;
 
           .item {
-
             .name {
-              font-size: 1.1em;
+              text-transform: capitalize;
             }
           }
         }

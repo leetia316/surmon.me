@@ -1,35 +1,63 @@
+/**
+ * @file Eslint config / Commonjs module
+ * @module eslint.config
+ * @author Surmon <https://github.com/surmon-china>
+*/
+
+const { isProdMode } = require('esm')(module)('./environment')
+
 module.exports = {
-  root: true,
-  parser: 'babel-eslint',
-  env: {
-    browser: true,
-    node: true
-  },
-  parserOptions: {
-    sourceType: 'module'
-  },
-  //  https:// github.com/feross/standard/blob/master/RULES.md#javascript-standard-style
-  // extends: 'standard',
-  //  required to lint *.vue files
-  plugins: [
-    'html'
+  extends: [
+    '@nuxtjs/eslint-config-typescript'
   ],
-  //  add your custom rules here
+  globals: {
+    Set: true,
+    Howl: true,
+    window: true,
+    Reflect: true,
+    Promise: true,
+    arguments: true,
+    document: true,
+    localStorage: true,
+    FaceDetector: true,
+    requestAnimFrame: true,
+  },
   rules: {
+    // Typescript eslint
+    '@typescript-eslint/no-unused-vars': 'off',
+
+    // Vue
+    'vue/no-unused-components': 'warn',
+    'vue/no-v-html': 'off',
+    'vue/require-default-prop': 'off',
+    'vue/singleline-html-element-content-newline': 'off',
+    'vue/multiline-html-element-content-newline': 'off',
+    'vue/order-in-components': 'off',
+    'vue/html-self-closing': ["error",{
+      "html": {
+        "void": "never",
+        "normal": "any",
+        "component": "any"
+      },
+      "svg": "always",
+      "math": "always"
+    }],
+
+    // 其他
+    'import/order': 'off',
+    'import/no-named-as-default-member': 'off',
+    'unicorn/prefer-text-content': 'off',
 
     /*Possible Errors*/
 
     // 数组和对象键值对最后一个逗号，
-
     // never参数：不能带末尾的逗号,
-
     // always参数：必须带末尾的逗号，
-
     // always-multiline：多行模式必须带逗号，单行模式不能带逗号
     "comma-dangle": [0, "never"],
 
     // 禁止在条件表达式中使用赋值语句
-    "no-cond-assign": 2,
+    "no-cond-assign": 0,
 
     // 禁止使用console
     "no-console": 0,
@@ -41,7 +69,7 @@ module.exports = {
     "no-control-regex": 2,
 
     // 禁止使用debugger语句
-    "no-debugger": process.env.NODE_ENV === 'production' ? 2 : 0,
+    "no-debugger": isProdMode ? 'error' : 'off',
 
     // 函数参数禁止重名
     "no-dupe-args": 2,
@@ -65,9 +93,9 @@ module.exports = {
     "no-extra-boolean-cast": 2,
 
     // 禁止使用多余的圆括号
-    "no-extra-parens": 2,
+    "no-extra-parens": 0,
 
-    // 禁止多余的冒号
+    // 禁止多余的分号
     "no-extra-semi": 2,
 
     // 禁止重复的函数声明
@@ -98,7 +126,7 @@ module.exports = {
     "no-unexpected-multiline": 0,
 
     // 禁止有执行不到的代码
-    "no-unreachable": 2,
+    "no-unreachable": 0,
 
     // 禁止和NaN作比较,推荐使用isNaN方法
     "use-isnan": 2,
@@ -129,42 +157,28 @@ module.exports = {
     "consistent-return": 0,
 
     //  if else while for do后面的代码块是否需要{ }包围，参数：
-
     //  multi         只有块中有多行语句时才需要{ }包围
-
     //  multi-line    只有块中有多行语句时才需要{ }包围, 但是块中的执行语句只有一行时，块中的语句只能跟和if语句在同一行。
-
     //                 if (foo) foo++; else doSomething();
-
     //  multi-or-nest 只有块中有多行语句时才需要{ }包围, 如果块中的执行语句只有一行，执行语句可以另起一行也可以跟在if语句后面
-
     //  [2, "multi", "consistent"] 保持前后语句的{ }一致
-
     //  default: [2, "all"] 全都需要{ }包围
-    "curly": 2,
+    "curly": 0,
 
     // 所有的switch语句都必须要有一个default分支
     "default-case": 2,
 
     //  在书写对象的属性或方法时，新的一行代码可以以. 开头，也可以以. 结束。
-
     //  强制统一object.key中 . 的位置，参数:
-
     //       property，'.'号应与属性在同一行
-
     //       object, '.' 号应与对象名在同一行
     "dot-location": [2, "property"],
 
     //  强制使用.号取属性
-
     //  参数： allowKeywords：true  使用保留字做属性名时，只能使用.方式取属性
-
     //                        false 使用保留字做属性名时, 只能使用[]方式取属性
-
     //                        e.g [2, {"allowKeywords": false}]
-
     //         allowPattern:  当属性名匹配提供的正则表达式时，允许使用[]方式取值,否则只能用.号取值
-
     //                        e.g [2, {"allowPattern": "^[a-z]+(_[a-z]+)+$"}]
     "dot-notation": [2, { "allowKeywords": true }],
 
@@ -172,7 +186,7 @@ module.exports = {
     "eqeqeq": [0, "allow-null"],
 
     // 在for-in 循环中要使用if语句
-    "guard-for-in": 2,
+    "guard-for-in": 0,
 
     // 代码中禁止使用alert, confirm, and prompt
     "no-alert": 0,
@@ -203,7 +217,7 @@ module.exports = {
     "no-eq-null": 0,
 
     // 禁止使用eval函数
-    "no-eval": 2,
+    "no-eval": 0,
 
     // 禁止扩展native对象，不能向native的对象上面添加属性
     "no-extend-native": 2,
@@ -225,7 +239,10 @@ module.exports = {
     "no-floating-decimal": 2,
 
     // 禁止隐式转换，为了消除简写的类型转换
-    "no-implicit-coercion": 2,
+    "no-implicit-coercion": 0,
+
+    // 禁止不必要的布尔转换
+    "no-extra-boolean-cast": 0,
 
     // 禁止在全局作用域里声明变量或函数
     "no-implicit-globals": 2,
@@ -323,7 +340,7 @@ module.exports = {
     "no-void": 2,
 
     // 生产代码中不能出现warning-comments包含的注释
-    "no-warning-comments": [2, { "terms": ["todo", "fixme", "any other term"], "location": "anywhere" }],
+    "no-warning-comments": [2, { "terms": ["fixme", "any other term"], "location": "anywhere" }],
 
     // 不要使用with语句
     "no-with": 2,
@@ -341,7 +358,6 @@ module.exports = {
 
     // 默认的规则要求，变量写在左边而字面量写在右边
     "yoda": 2,
-
 
     /*Strict Mode*/
 
@@ -368,13 +384,13 @@ module.exports = {
     // 禁止声明外部作用域中已定义的变量
     "no-shadow": 0,
 
-    // 声明变量时禁止覆盖JavaScript中的一些保留关键字，比如NaN、Infinity、undefined、eval、arguments等。
+    // 声明变量时禁止覆盖 JavaScript 中的一些保留关键字，比如NaN、Infinity、undefined、eval、arguments等。
     "no-shadow-restricted-names": 2,
 
     // 禁止使用未被定义的变量，除非已在配置文件的global中进行了说明。
     "no-undef": 2,
 
-    // 禁止初始化变量为undefined
+    // 禁止初始化变量为 undefined
     "no-undef-init": 2,
 
     // 禁止把undefined作为变量名
@@ -388,7 +404,6 @@ module.exports = {
 
 
     /*Node.js and CommonJS*/
-
     // 强制回调后return，避免多次调用回调
     "callback-return": 0,
 
@@ -420,22 +435,15 @@ module.exports = {
     "no-sync": 0,
 
 
-
-
-
     /*Stylistic Issues*/
 
     //  用数组字面量定义数组时数组元素前后是否加空格，
-
     //  never参数： 数组元素前后不能带空格，
-
     //  always参数：数组元素前后必须留空格
     "array-bracket-spacing": [0, "never"],
 
     // 在单行代码块中，代码块前后是否需要留空格
-
     //  always参数：默认，前后必须留空格
-
     //  never参数： 前后不能带空格
     "block-spacing": [2, "always"],
 
@@ -468,17 +476,11 @@ module.exports = {
     "func-names": 0,
 
     // 在JavaScript中有两种方式定义函数:函数声明和函数表达式。
-
     // 函数声明就是把function关键词写在最前面，后面跟一个函数名。我们可以在函数申明代码前调用函数
-
     // 函数表达式是通过var等声明变量的关键字开头，然后跟函数名，再后面是function本身。在使用函数表达式定义函数前调用函数会报错
-
     //  统一定义函数是所采用的方式，参数：
-
     //     declaration: 强制使用方法声明的方式，function f(){} e.g [2, "declaration"]
-
     //     expression：强制使用方法表达式的方式，默认方式，var f = function() {}  e.g [2, "expression"]
-
     //     allowArrowFunctions: declaration风格中允许箭头函数。 e.g [2, "declaration", {"allowArrowFunctions":true}]
     "func-style": [2, "expression"],
 
@@ -603,7 +605,8 @@ module.exports = {
     "operator-assignment": [2, "always"],
 
     // 在换行时操作符应该放在行首还是行尾。还可对某些操作符进行重写。
-    "operator-linebreak": [2, "after", { "overrides": { "?": "before", ":": "before" } }],
+    // "operator-linebreak": [2, "after", { "overrides": { "?": "before", ":": "before" } }],
+    "operator-linebreak": 0,
 
     // 在代码块中，代码块的开始和结尾是否应该留一个空行
     "padded-blocks": 0,
@@ -616,25 +619,16 @@ module.exports = {
 
     // 注释格式要求JSDoc格式
     "require-jsdoc": [0, {
-
         "require": {
-
             "FunctionDeclaration": true,
-
             "MethodDefinition": false,
-
             "ClassDeclaration": false
-
         }
-
     }],
 
     // JavaScript不要求在每行末尾加上分号，这是因为JavaScript引擎会决定是否需要在行末加上分号，然后自动帮我们在行末加上分号，这一特性被成为ASI(automatic semicolon insertion)，也是JavaScript语言最富争议的特性之一
-
     // 尽管ASI允许我们使用更加自由的代码风格，但是它也可能使得你的代码并不是按你期许的方式运行
-
     // 两个可选参数，always 和never
-
     // 默认配置always，要求在行末加上分号。
     "semi": [0, "always"],
 
@@ -675,13 +669,13 @@ module.exports = {
 
     /*ECMAScript 6*/
 
-    // 箭头函数中，如果函数体里只有一句代码时可以省略大括号
+    "prefer-promise-reject-errors": 0,
 
+    // 箭头函数中，如果函数体里只有一句代码时可以省略大括号
     // 规定是否可以省略大括号
     "arrow-body-style": 0,
 
     // 箭头函数中，只有一个参数时可以省略圆括号
-
     // 规定了参数是否需要圆括号包围
     "arrow-parens": [0, "always"],
 
@@ -698,7 +692,7 @@ module.exports = {
     "no-class-assign": 2,
 
     // 箭头函数的箭头和比较操作符 (>, <, <=, and >=)很相似，该规则要求在和比较操作符容易发生混淆时禁止使用箭头函数语法
-    "no-confusing-arrow": 2,
+    "no-confusing-arrow": 0,
 
     // 禁止修改const声明的变量
     "no-const-assign": 2,
@@ -710,10 +704,8 @@ module.exports = {
     "no-new-symbol": 2,
 
     // 该规则可以定义不允许在应用中导入的模块
-    "no-restricted-imports": [2,
-
-        "assert", "buffer", "child_process", "cluster", "crypto", "dgram", "dns", "domain", "events", "freelist", "fs", "http", "https", "module", "net", "os", "path", "punycode", "querystring", "readline", "repl", "smalloc", "stream", "string_decoder", "sys", "timers", "tls", "tracing", "tty", "url", "util", "vm", "zlib"
-
+    "no-restricted-imports": [0,
+      "assert", "buffer", "child_process", "cluster", "crypto", "dgram", "dns", "domain", "events", "freelist", "fs", "http", "https", "module", "net", "os", "path", "punycode", "querystring", "readline", "repl", "smalloc", "stream", "string_decoder", "sys", "timers", "tls", "tracing", "tty", "url", "util", "vm", "zlib"
     ],
 
     // 在构造函数中，禁止在super()调用前使用this/super对象
@@ -729,7 +721,6 @@ module.exports = {
     "object-shorthand": 0,
 
     // 函数作为函数的参数传入时，传入的函数需要是箭头函数
-
     // 箭头函数中的this对象直接绑定到了其外面包围的函数的this对象。
     "prefer-arrow-callback": 0,
 
@@ -737,10 +728,10 @@ module.exports = {
     "prefer-const": 1,
 
     // 推荐使用Reflect上的方法替代以前老方法
-    "prefer-reflect": 2,
+    "prefer-reflect": 1,
 
     //  在ES2015(ES6)中推荐使用剩余参数(...rest)代替arguments变量
-    "prefer-rest-params": 2,
+    "prefer-rest-params": 0,
 
     // 在ES2015(ES6)中推荐使用扩展符替代apply()方法
     "prefer-spread": 2,
@@ -755,7 +746,6 @@ module.exports = {
     "template-curly-spacing": [2, "never"],
 
     // yield*表达式中的*号前后是否留空格，默认after，比如yield* other()
-    "yield-star-spacing": [2, "after"]
-
+    "yield-star-spacing": [2, "after"],
   }
 }

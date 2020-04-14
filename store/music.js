@@ -1,30 +1,14 @@
-/*
-*
-* 播放器数据状态
-*
-*/
+/**
+ * @file Music 数据状态 / ES module
+ * @module store/music
+ * @author Surmon <https://github.com/surmon-china>
+ */
 
-import musicPlayerBuilder from '~/utils/music-player'
+import appConfig from '~/config/app.config'
 
 export const state = () => {
   return {
-    playerState: {
-      seek: 0,
-      index: 0,
-      targetIndex: 0,
-      volume: 0.4,
-      wave: false,
-      ready: false,
-      muted: false,
-      loading: false,
-      playing: false,
-      progress: 0
-    },
     list: {
-      fetching: false,
-      data: null
-    },
-    song: {
       fetching: false,
       data: null
     },
@@ -35,55 +19,53 @@ export const state = () => {
   }
 }
 
-export const getters = {
-  currentSong: state => {
-    if (state.list.data) {
-      return state.list.data.tracks[state.playerState.index]
-    } else {
-      return null
-    }
+export const mutations = {
+  updateListFetching(state, action) {
+    state.list.fetching = action
+  },
+  updateListData(state, action) {
+    state.list.data = action
+  },
+  updateLrcFetching(state, action) {
+    state.lrc.fetching = action
+  },
+  updateLrcData(state, action) {
+    state.lrc.data = action
   }
 }
 
-export const mutations = {
-
-  INIT_PLAYER(state) {
-    musicPlayerBuilder(state)
+export const actions = {
+  fetchSongList({ commit }) {
+    commit('updateListFetching', true)
+    return this.$axios
+      .$get(`/music/list/${appConfig.music.id}`)
+      .then(response => {
+        commit('updateListData', response.result)
+        commit('updateListFetching', false)
+        return response
+      })
+      .catch(error => {
+        commit('updateListData', null)
+        commit('updateListFetching', false)
+        return Promise.reject(error)
+      })
   },
-
-  REQUEST_LIST(state) {
-    state.list.fetching = true
+  fetchSongLrc({ commit }, songID) {
+    commit('updateLrcFetching', true)
+    return this.$axios
+      .$get(`/music/lrc/${songID}`)
+      .then(response => {
+        commit('updateLrcData', response.result)
+        commit('updateLrcFetching', false)
+        return response
+      })
+      .catch(error => {
+        commit('updateLrcData', null)
+        commit('updateLrcFetching', false)
+        return Promise.reject(error)
+      })
   },
-  GET_LIST_FAILURE(state) {
-    state.list.fetching = false
-    state.list.data = null
-  },
-  GET_LIST_SUCCESS(state, action) {
-    state.list.fetching = false
-    state.list.data = action.result
-  },
-
-  REQUEST_SONG(state) {
-    state.song.fetching = true
-  },
-  GET_SONG_FAILURE(state) {
-    state.song.data = null
-    state.song.fetching = false
-  },
-  GET_SONG_SUCCESS(state, action) {
-    state.song.data = action.result
-    state.song.fetching = false
-  },
-  
-  REQUEST_LRC(state) {
-    state.lrc.fetching = true
-  },
-  GET_LRC_FAILURE(state) {
-    state.lrc.fetching = false
-    state.lrc.data = null
-  },
-  GET_LRC_SUCCESS(state, action) {
-    state.lrc.fetching = false
-    state.lrc.data = action.result
+  fetchSongUrl(_, songID) {
+    return this.$axios.$get(`/music/url/${songID}`)
   }
 }

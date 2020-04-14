@@ -1,23 +1,21 @@
 <template>
-  <div class="index">
-    <carrousel :article="article"></carrousel>
-    <announcement :announcement="announcement"></announcement>
-    <article-list :article="article" @loadmore="loadmoreArticle"></article-list>
+  <div class="index-page">
+    <carrousel :article="article" />
+    <announcement :announcement="announcement" />
+    <article-list :article="article" @loadmore="loadmoreArticle" />
   </div>
 </template>
 
 <script>
-  import Carrousel from '~/components/article/archive/carrousel'
-  import Announcement from '~/components/article/archive/announcement'
-  import ArticleList from '~/components/article/archive/list'
-  import Service from '~/plugins/axios'
-
+  import ArticleList from '~/components/archive/list'
+  import Carrousel from '~/components/archive/carrousel'
+  import Announcement from '~/components/archive/announcement'
   export default {
-    name: 'index',
-    fetch ({ store }) {
+    name: 'Index',
+    fetch({ store }) {
       return Promise.all([
-        store.dispatch('loadArticles'),
-        store.dispatch('loadAnnouncements')
+        store.dispatch('article/fetchList'),
+        store.dispatch('announcement/fetchList')
       ])
     },
     components: {
@@ -40,7 +38,7 @@
     },
     methods: {
       loadmoreArticle() {
-        this.$store.dispatch('loadArticles', this.nextPageParams)
+        this.$store.dispatch('article/fetchList', this.nextPageParams)
       }
     }
   }

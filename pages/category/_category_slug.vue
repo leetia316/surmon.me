@@ -1,45 +1,42 @@
 <template>
-  <div class="index">
-    <article-list :article="article" @loadmore="loadmoreArticle"></article-list>
+  <div class="category-archive-page">
+    <article-list :article="article" @loadmore="loadmoreArticles" />
   </div>
 </template>
 
 <script>
-  import Carrousel from '~/components/article/archive/carrousel'
-  import ArticleList from '~/components/article/archive/list'
+  import ArticleList from '~/components/archive/list'
 
   export default {
-    name: 'category-article-list',
-    validate ({ params }) {
-      return !!params.category_slug
+    name: 'CategoryArticleList',
+    components: {
+      ArticleList
+    },
+    validate({ params, store }) {
+      return params.category_slug && store.state.category.data.some(
+        category => category.slug === params.category_slug
+      )
     },
     fetch({ store, params }) {
-      return store.dispatch('loadArticles', params)
+      return store.dispatch('article/fetchList', params)
     },
     head() {
       const slug = this.defaultParams.category_slug || ''
       const title = slug.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase())
+      const isEnLang = this.$store.getters['global/isEnLang']
+      const zhTitle = isEnLang ? '' : `${this.$i18n.nav[slug]} | `
       return { 
-        title: `${title} | Category` 
+        title: `${zhTitle}${title} | Category` 
       }
-    },
-    created() {
-      if (!this.currentCategory) {
-        this.$router.back()
-      }
-    },
-    components: {
-      Carrousel,
-      ArticleList
     },
     computed: {
       article() {
         return this.$store.state.article.list
       },
       currentCategory() {
-        return this.$store.state.category.data.data.find(category => {
-          return Object.is(category.slug, this.$route.params.category_slug)
-        })
+        return this.$store.state.category.data.find(
+          category => category.slug === this.$route.params.category_slug
+        )
       },
       defaultParams() {
         return {
@@ -53,8 +50,13 @@
       }
     },
     methods: {
-      loadmoreArticle() {
-        this.$store.dispatch('loadArticles', this.nextPageParams)
+      loadmoreArticles() {
+        this.$store.dispatch('article/fetchList', this.nextPageParams)
+      }
+    },
+    created() {
+      if (!this.currentCategory) {
+        this.$router.back()
       }
     }
   }

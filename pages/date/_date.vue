@@ -1,26 +1,24 @@
 <template>
-  <div class="index">
-    <article-list :article="article" @loadmore="loadmoreArticle"></article-list>
+  <div class="date-archive-page">
+    <article-list :article="article" @loadmore="loadmoreArticle" />
   </div>
 </template>
 
 <script>
-  import Carrousel from '~/components/article/archive/carrousel'
-  import ArticleList from '~/components/article/archive/list'
+  import ArticleList from '~/components/archive/list'
 
   export default {
-    name: 'data-article-list',
-    validate ({ params }) {
-      return !Object.is(new Date(params.date).toString(), 'Invalid Date')
+    name: 'DateArticleList',
+    validate({ params }) {
+      return new Date(params.date).toString() !== 'Invalid Date'
     },
     fetch({ store, params }) {
-      return store.dispatch('loadArticles', params)
+      return store.dispatch('article/fetchList', params)
     },
     head() {
       return { title: `${this.defaultParams.date} | Date` }
     },
     components: {
-      Carrousel,
       ArticleList
     },
     computed: {
@@ -33,14 +31,17 @@
         }
       },
       nextPageParams() {
-        return Object.assign({
-          page: this.article.data.pagination.current_page + 1
-        }, this.defaultParams)
+        return Object.assign(
+          {
+            page: this.article.data.pagination.current_page + 1
+          },
+          this.defaultParams
+        )
       }
     },
     methods: {
       loadmoreArticle() {
-        this.$store.dispatch('loadArticles', this.nextPageParams)
+        this.$store.dispatch('article/fetchList', this.nextPageParams)
       }
     }
   }
